@@ -1,5 +1,6 @@
 from datetime import datetime
 import json
+import matplotlib.pyplot as plt
 
 def save_budget_details(initial_budget, expenses):
    
@@ -52,18 +53,24 @@ def load_budget_data(filepath):
     try:
         with open(filepath, 'r') as file:
             data = json.load(file)
-            return data['inital_budget'], data['expenses']# you did initial budget instead of initial_budget so it is same key error as last time
+            return data['initial_budget'], data['expenses']# you did initial budget instead of initial_budget so it is same key error as last time
     except (FileNotFoundError, json.JSONDecodeError):
         return 0, []
     
     
-# def save_budget_details(filepath, initial_budget, expenses): 
-#     data = {
-#         'inital_budget': initial_budget,
-#         'expenses': expenses
-#     }
-#     with open(filepath, 'w') as file:
-#         json.dump(data, file, indent=4)
+def get_monthly_expenses(expenses):
+    descriptions = [expense['Description'] for expense in expenses]
+    amounts = [expense['Amount'] for expense in expenses]
+    plt.figure(figsize=(10,6))
+    plt.bar(descriptions, amounts, color = 'skyblue')
+
+    plt.xlabel("Descriptions of expenses")
+    plt.ylabel("Amount of expenses")
+
+    plt.xticks(rotation = 45, ha = 'right')
+
+    plt.tight_layout()
+    plt.show()
 
     
 def budgettracking():
@@ -90,10 +97,23 @@ def budgettracking():
         elif choice == '2':
             budget_details(budget, expenses)
         elif choice == '3':
-            save_budget_details(initial_budget, expenses)#make sure your syntax is correct you put in a < instead of a ,
-            print('Exiting the Budget App. Goodbye.')
+            summary = input("Do you want a summary of your expenses(yes or no): ").lower()
+            if summary == 'yes':
+                month_or_year = input("Do you want a monthly or yearly summary?: ").lower()
+                if month_or_year == 'monthly':
+                    get_monthly_expenses(expenses)
+                    exit = input("Do you want to exit now?: ").lower()
+                    if exit == 'yes':
+                        save_budget_details(initial_budget, expenses)#make sure your syntax is correct you put in a < instead of a ,
+                        print('Exiting the Budget App. Goodbye.')
             #forgot to use a break. just remember to end the loop
-            break
+                        break
+            if summary == 'no':
+                save_budget_details(initial_budget, expenses)#make sure your syntax is correct you put in a < instead of a ,
+                print('Exiting the Budget App. Goodbye.')
+            #forgot to use a break. just remember to end the loop
+                break
+            
         else:
             print('Invalid Choice. Try Again')
 
